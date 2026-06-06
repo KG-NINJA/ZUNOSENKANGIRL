@@ -1,46 +1,43 @@
-RealtimeShoot
+# RealtimeShoot
 
-A fast-paced 1v1 arena shooter where every battle feels different.
+RealtimeShoot is a fast 1v1 browser arena shooter.
 
-Features
-Fast arcade-style combat
-Laser weapons and close-range melee attacks
-Dash movement system
-Dynamic enemy tactics
-Browser-based gameplay
-No installation required
-Controls
-Action	Key
-Move	WASD / Arrow Keys
-Shoot	J / Z
-Melee Attack	K / X
-Dash	L / C
-Objective
+Move, dash, shoot, and strike at close range while fighting a CPU enemy that changes its tactics during battle. The enemy can become evasive, aggressive, or switch attack patterns depending on how the match develops.
 
-Defeat the enemy before your HP reaches zero.
+## Play
 
-The enemy continuously adapts its behavior during battle, forcing you to change tactics and avoid predictable movement patterns.
+Open the GitHub Pages URL and press **Start**.
 
-Tips
-Dashing can help escape dangerous situations.
-Mixing melee and ranged attacks is often more effective than relying on one strategy.
-Repeating the same dodge pattern may allow the enemy to anticipate your movements.
-Play Online
+## Controls
 
-GitHub Pages URL
+| Action | Key |
+|---|---|
+| Move | WASD / Arrow Keys |
+| Shoot | J / Z |
+| Melee | K / X |
+| Dash | L / C |
 
-Technology
+## Goal
 
-Built with:
+Reduce the CPU enemy HP to zero before your own HP runs out.
 
-HTML5 Canvas
-JavaScript
-Web Audio API
+## Tips
 
-Created by KGNINJA
+Do not repeat the same movement pattern too much. The enemy may adjust its behavior and punish predictable dodges.
+
+Use dash to escape laser lines, then close the distance for melee when the enemy is vulnerable.
+
+## Features
+
+- 1v1 arena combat
+- Laser shooting
+- Melee attack
+- Dash movement
+- Hit stop and screen shake
+- Radio voice option
+- Browser-based play
+- Optional adaptive enemy brain
+
+Created by KGNINJA.
 
 #KGNINJA
-
-もしWebLLM版を入れるなら、
-
-The enemy can analyze player behavior and adjust its tactics during combat.

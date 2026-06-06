@@ -1,4 +1,4 @@
-import * as webllm from 'https://esm.run/@mlc-ai/web-llm';
+let webllm = null;
 // Minimal 1v1 canvas shooter with distance-based tactics
 // Loads a subset of settings from SchemaVersion 1.YAML
 
@@ -91,6 +91,10 @@ async function loadWebLLMEnemyBrain() {
   llmLoading = true;
   setAiStatus('AI: loading model...');
   try {
+    if (!webllm) {
+      setAiStatus('AI: loading library...');
+      webllm = await import('https://esm.run/@mlc-ai/web-llm');
+    }
     llmEngine = await webllm.CreateMLCEngine(WEBLLM_MODEL, {
       initProgressCallback: (p) => {
         const pct = p?.progress ? Math.round(p.progress * 100) : 0;
