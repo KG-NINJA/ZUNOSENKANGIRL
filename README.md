@@ -21,6 +21,15 @@ Open the GitHub Pages URL and press **Start**.
 
 Reduce the CPU enemy HP to zero before your own HP runs out.
 
+## Difficulty
+
+Choose a CPU difficulty beside Start and Reset. You can change it during a match without restarting.
+
+- **Easy** - Slower attacks, lighter damage, and more breathing room.
+- **Normal** - The standard balanced battle.
+- **Hard** - Faster pressure, stronger hits, and shorter openings.
+- **Nightmare** - Relentless and highly aggressive, but still beatable with precise dashes and counters.
+
 ## Tips
 
 Do not repeat the same movement pattern too much. The enemy may adjust its behavior and punish predictable dodges.

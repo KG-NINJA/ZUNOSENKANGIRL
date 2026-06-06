@@ -25,6 +25,45 @@ const aiIndicator = document.getElementById('aiIndicator');
 const loadAiBtn = document.getElementById('loadAiBtn');
 const webllmToggle = document.getElementById('webllmToggle');
 const aiStatus = document.getElementById('aiStatus');
+const difficultySelect = document.getElementById('difficultySelect');
+const difficultyHud = document.getElementById('difficultyHud');
+
+const DIFFICULTY = {
+  easy: {
+    label: 'Easy', enemySpeedMul: 0.75, enemyAggressionMul: 0.65,
+    enemyShotCooldownMul: 1.5, enemyLaserCooldownMul: 1.4,
+    enemyMeleeCooldownMul: 1.4, enemyDamageMul: 0.75,
+    dodgeChanceMul: 0.6, reactionIntervalMs: 7000,
+  },
+  normal: {
+    label: 'Normal', enemySpeedMul: 1.0, enemyAggressionMul: 1.0,
+    enemyShotCooldownMul: 1.0, enemyLaserCooldownMul: 1.0,
+    enemyMeleeCooldownMul: 1.0, enemyDamageMul: 1.0,
+    dodgeChanceMul: 1.0, reactionIntervalMs: 5000,
+  },
+  hard: {
+    label: 'Hard', enemySpeedMul: 1.18, enemyAggressionMul: 1.25,
+    enemyShotCooldownMul: 0.8, enemyLaserCooldownMul: 0.85,
+    enemyMeleeCooldownMul: 0.85, enemyDamageMul: 1.15,
+    dodgeChanceMul: 1.25, reactionIntervalMs: 3500,
+  },
+  nightmare: {
+    label: 'Nightmare', enemySpeedMul: 1.35, enemyAggressionMul: 1.5,
+    enemyShotCooldownMul: 0.65, enemyLaserCooldownMul: 0.7,
+    enemyMeleeCooldownMul: 0.7, enemyDamageMul: 1.3,
+    dodgeChanceMul: 1.6, reactionIntervalMs: 2500,
+  },
+};
+
+let currentDifficulty = 'normal';
+
+function getDifficulty() {
+  return DIFFICULTY[currentDifficulty] || DIFFICULTY.normal;
+}
+
+function updateDifficultyHud() {
+  if (difficultyHud) difficultyHud.textContent = `Difficulty: ${getDifficulty().label}`;
+}
 
 // AI connection layer
 // GitHub Pages cannot run a WebSocket server or Ollama server by itself.
@@ -123,7 +162,7 @@ function sanitizeBrain(raw) {
 async function thinkWithWebLLM() {
   if (!llmEngine || llmBusy || !webllmToggle?.checked || !running || !player?.alive || !enemy?.alive) return;
   const now = performance.now();
-  if (now - lastLlmThinkAt < 5000) return;
+  if (now - lastLlmThinkAt < getDifficulty().reactionIntervalMs) return;
   lastLlmThinkAt = now;
   llmBusy = true;
   if (aiIndicator) aiIndicator.style.display = 'block';
@@ -133,10 +172,12 @@ async function thinkWithWebLLM() {
     const dy = Math.round(player.y - enemy.y);
     const dist = Math.round(Math.hypot(dx, dy));
     const rightRate = playerStats.rightMoves / Math.max(1, playerStats.rightMoves + playerStats.leftMoves);
+    const difficulty = getDifficulty();
     const prompt = `You control the CPU enemy in a 2D 1v1 shooter. Return only JSON. No prose.\n` +
       `Allowed mode: evasive, balanced, aggressive.\n` +
       `Allowed dodge_bias: left, right, up, down, none.\n` +
       `Allowed attack_pattern: burst, spread, melee, bait, flank.\n` +
+      `Difficulty: ${difficulty.label}. Favor ${currentDifficulty === 'easy' ? 'evasive, lower-aggression tactics' : currentDifficulty === 'normal' ? 'balanced tactics' : 'aggressive, pressure-focused tactics'}.\n` +
       `State: player_hp=${player.hp}, enemy_hp=${enemy.hp}, distance=${dist}, dx=${dx}, dy=${dy}, player_right_move_rate=${rightRate.toFixed(2)}, player_shots=${playerStats.shots}, player_melee=${playerStats.melee}.\n` +
       `Choose a counter tactic. JSON schema: {"mode":"balanced","aggression":0.5,"dodge_bias":"none","attack_pattern":"burst"}`;
     const res = await llmEngine.chat.completions.create({
@@ -530,7 +571,7 @@ function reset() {
 // YAML loader: fetch and extract a few fields
 async function loadSchema() {
   try {
-    const res = await fetch('/SchemaVersion%201.YAML');
+    const res = await fetch('./SchemaVersion%201.YAML');
     if (!res.ok) return;
     const text = await res.text();
     // Extract locales line(s)
@@ -655,6 +696,7 @@ function hint(owner, text) {
 }
 
 function hitTarget(t, dmg, by = undefined, mode = undefined) {
+  if (by === 'enemy') dmg *= getDifficulty().enemyDamageMul;
   t.hp -= dmg;
   if (t.hp <= 0) {
     t.hp = 0; t.alive = false; running = false;
@@ -697,6 +739,7 @@ function updateHUD() {
 function handleEnemy(dt) {
   const e = enemy; const p = player;
   if (!e.alive) return;
+  const difficulty = getDifficulty();
 
   if (enemyAction) {
     // AI-based action
@@ -713,12 +756,12 @@ function handleEnemy(dt) {
       const dir = Math.atan2(p.y - e.y, p.x - e.x);
       const fired = spawnLaser(e.x + Math.cos(dir)*e.r, e.y + Math.sin(dir)*e.r, dir, 'enemy', '#ef4444');
       if (fired) {
-        e.shotTimer = CFG.shotCooldown * rand(0.9, 1.2);
-        e.laserLock = CFG.laserGlobalCooldown;
+        e.shotTimer = CFG.shotCooldown * difficulty.enemyShotCooldownMul * rand(0.9, 1.2);
+        e.laserLock = CFG.laserGlobalCooldown * difficulty.enemyLaserCooldownMul;
       }
     } else if (enemyAction.action === 'melee') {
       tryMelee(e, p, 'enemy');
-      e.meleeTimer = CFG.meleeCooldown * rand(0.8, 1.2);
+      e.meleeTimer = CFG.meleeCooldown * difficulty.enemyMeleeCooldownMul * rand(0.8, 1.2);
     }
     enemyAction = null; // Reset after action
     aiIndicator.style.display = 'none'; // AI動作終了
@@ -731,7 +774,7 @@ function handleEnemy(dt) {
     // Basic strategy, modulated by WebLLM tactical brain.
     // LLM changes intent; deterministic code still performs the fast movement.
     let ax = 0, ay = 0;
-    const aggression = enemyBrain.aggression ?? 0.55;
+    const aggression = Math.min(1, (enemyBrain.aggression ?? 0.55) * difficulty.enemyAggressionMul);
     const preferShoot = CFG.ai.preferShootDist * (enemyBrain.mode === 'evasive' ? 1.25 : enemyBrain.mode === 'aggressive' ? 0.85 : 1.0);
     const preferMelee = CFG.ai.preferMeleeDist * (enemyBrain.attack_pattern === 'melee' ? 1.4 : 1.0);
 
@@ -750,8 +793,9 @@ function handleEnemy(dt) {
       ay += toPdy * CFG.accel * push;
     }
 
-    if (enemyBrain.dodge_bias === 'up') ay -= CFG.accel * 0.25;
-    if (enemyBrain.dodge_bias === 'down') ay += CFG.accel * 0.25;
+    const dodgeMul = difficulty.dodgeChanceMul;
+    if (enemyBrain.dodge_bias === 'up') ay -= CFG.accel * 0.25 * dodgeMul;
+    if (enemyBrain.dodge_bias === 'down') ay += CFG.accel * 0.25 * dodgeMul;
 
     // (Lasers are instantaneous; keep movement logic focused on range/strafe)
 
@@ -760,7 +804,7 @@ function handleEnemy(dt) {
 
     // Cap
     const sp = Math.hypot(e.vx, e.vy);
-    const cap = CFG.ai.strafeSpeed;
+    const cap = CFG.ai.strafeSpeed * difficulty.enemySpeedMul;
     if (sp > cap) { e.vx = e.vx / sp * cap; e.vy = e.vy / sp * cap; }
 
     e.x += e.vx * dt; e.y += e.vy * dt;
@@ -770,7 +814,7 @@ function handleEnemy(dt) {
     // Attack logic
     if (dist <= (enemyBrain.attack_pattern === 'melee' ? CFG.ai.preferMeleeDist * 1.45 : CFG.ai.preferMeleeDist) && e.meleeTimer <= 0) {
       tryMelee(e, p, 'enemy');
-      e.meleeTimer = CFG.meleeCooldown * rand(0.8, 1.2);
+      e.meleeTimer = CFG.meleeCooldown * difficulty.enemyMeleeCooldownMul * rand(0.8, 1.2);
     } else {
       // Intermittent fire: bursts with rest pauses
       if (e.aiShootPause > 0) {
@@ -784,11 +828,11 @@ function handleEnemy(dt) {
         const dir = Math.atan2(dy, dx) + spread;
         const fired = spawnLaser(e.x + Math.cos(dir)*e.r, e.y + Math.sin(dir)*e.r, dir, 'enemy', '#ef4444');
         if (fired) {
-          e.shotTimer = CFG.shotCooldown * rand(0.9, 1.2);
-          e.laserLock = CFG.laserGlobalCooldown;
+          e.shotTimer = CFG.shotCooldown * difficulty.enemyShotCooldownMul * rand(0.9, 1.2);
+          e.laserLock = CFG.laserGlobalCooldown * difficulty.enemyLaserCooldownMul;
           e.aiBurstLeft -= 1;
           if (e.aiBurstLeft <= 0) {
-            e.aiShootPause = rand(CFG.ai.burstRestMin, CFG.ai.burstRestMax);
+            e.aiShootPause = rand(CFG.ai.burstRestMin, CFG.ai.burstRestMax) * difficulty.enemyShotCooldownMul;
           }
         } else {
           // laser already on screen; retry shortly
@@ -1210,9 +1254,17 @@ if (webllmToggle) {
     else setAiStatus(webllmToggle.checked ? 'AI: ready' : 'AI: off');
   });
 }
+if (difficultySelect) {
+  difficultySelect.value = currentDifficulty;
+  difficultySelect.addEventListener('change', () => {
+    currentDifficulty = DIFFICULTY[difficultySelect.value] ? difficultySelect.value : 'normal';
+    updateDifficultyHud();
+  });
+}
 if (voiceVol) {
   voiceVol.addEventListener('input', () => { VOICE.vol = parseFloat(voiceVol.value || '0.7'); });
   VOICE.vol = parseFloat(voiceVol.value || '0.7');
 }
 reset();
+updateDifficultyHud();
 requestAnimationFrame(step);

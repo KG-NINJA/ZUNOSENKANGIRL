@@ -12,6 +12,15 @@
       <div class="controls">
         <button id="startBtn">Start</button>
         <button id="resetBtn">Reset</button>
+        <label class="difficulty-control">
+          <span>Difficulty</span>
+          <select id="difficultySelect">
+            <option value="easy">Easy</option>
+            <option value="normal" selected>Normal</option>
+            <option value="hard">Hard</option>
+            <option value="nightmare">Nightmare</option>
+          </select>
+        </label>
         <label style="display:inline-flex;align-items:center;gap:6px;">
           <input type="checkbox" id="voiceToggle" checked />
           <span id="voiceLabel">Radio Voice</span>
@@ -38,6 +47,7 @@
         </div>
         <div>
           <strong id="eLabel">CPU</strong>
+          <small id="difficultyHud">Difficulty: Normal</small>
           <div class="bar enemy"><div id="eHp" class="fill"></div></div>
           <small id="eTip"></small>
         </div>
