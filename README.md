@@ -1,16 +1,46 @@
-# WebLLM Enemy Brain patch
+RealtimeShoot
 
-This patch adds a browser-side tactical LLM layer to the existing 1v1 shooter.
+A fast-paced 1v1 arena shooter where every battle feels different.
 
-- GitHub Pages compatible: no server required for WebLLM mode.
-- The old localhost WebSocket path is kept only for local development.
-- WebLLM runs every 5 seconds and returns a small JSON tactic.
-- Frame-by-frame movement and collision remain deterministic JavaScript.
+Features
+Fast arcade-style combat
+Laser weapons and close-range melee attacks
+Dash movement system
+Dynamic enemy tactics
+Browser-based gameplay
+No installation required
+Controls
+Action	Key
+Move	WASD / Arrow Keys
+Shoot	J / Z
+Melee Attack	K / X
+Dash	L / C
+Objective
 
-Usage:
-1. Put index.html, main.js, and style.css in the GitHub Pages root.
-2. Open the page in Chrome or Edge with WebGPU support.
-3. Click `Load WebLLM`.
-4. Start the game.
+Defeat the enemy before your HP reaches zero.
 
-If the model id stops working, replace `WEBLLM_MODEL` in main.js with a currently supported WebLLM 1B-class instruct model.
+The enemy continuously adapts its behavior during battle, forcing you to change tactics and avoid predictable movement patterns.
+
+Tips
+Dashing can help escape dangerous situations.
+Mixing melee and ranged attacks is often more effective than relying on one strategy.
+Repeating the same dodge pattern may allow the enemy to anticipate your movements.
+Play Online
+
+GitHub Pages URL
+
+Technology
+
+Built with:
+
+HTML5 Canvas
+JavaScript
+Web Audio API
+
+Created by KGNINJA
+
+#KGNINJA
+
+もしWebLLM版を入れるなら、
+
+The enemy can analyze player behavior and adjust its tactics during combat.
