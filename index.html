@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RealtimeShoot 1v1</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header>
+      <h1 id="title">RealtimeShoot</h1>
+      <div class="controls">
+        <button id="startBtn">Start</button>
+        <button id="resetBtn">Reset</button>
+        <label style="display:inline-flex;align-items:center;gap:6px;">
+          <input type="checkbox" id="voiceToggle" checked />
+          <span id="voiceLabel">Radio Voice</span>
+        </label>
+        <input type="range" id="voiceVol" min="0" max="1" step="0.05" value="0.7" title="Voice Volume" style="width:100px;" />
+        <button id="loadAiBtn" type="button">Load WebLLM</button>
+        <label style="display:inline-flex;align-items:center;gap:6px;">
+          <input type="checkbox" id="webllmToggle" />
+          <span>WebLLM Enemy Brain</span>
+        </label>
+        <span id="aiStatus" class="ai-status">AI: off</span>
+        <span id="lang"></span>
+      </div>
+    </header>
+
+    <main>
+      <canvas id="game" width="960" height="540"></canvas>
+      <section class="ai-indicator" id="aiIndicator" style="display:none;">AI</section>
+      <section class="hud">
+        <div>
+          <strong id="pLabel">Player</strong>
+          <div class="bar"><div id="pHp" class="fill"></div></div>
+          <small id="pTip"></small>
+        </div>
+        <div>
+          <strong id="eLabel">CPU</strong>
+          <div class="bar enemy"><div id="eHp" class="fill"></div></div>
+          <small id="eTip"></small>
+        </div>
+      </section>
+      <section class="help">
+        <p id="helpText">
+          Move: WASD / Arrow Keys | Shoot: J / Z | Melee: K / X | Dash: L / C | Radio: toggle in header
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      <small>Schema loader: <code>SchemaVersion 1.YAML</code></small>
+    </footer>
+
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
