@@ -1062,6 +1062,8 @@ function draw(dt) {
   drawFighter(player);
   drawFighter(enemy);
 
+  drawEnemyStrategy();
+
   // Death wrecks drawn above
   drawWrecks();
 
@@ -1074,6 +1076,44 @@ function draw(dt) {
     ctx.fillText(CFG.locale === 'ja-JP' ? 'Startを押してください' : 'Press Start', W/2, H/2);
   }
   // End camera shake transform
+  ctx.restore();
+}
+
+function drawEnemyStrategy() {
+  const modeLabels = {
+    evasive: 'EVASIVE',
+    balanced: 'BALANCED',
+    aggressive: 'AGGRESSIVE',
+  };
+  const attackLabels = {
+    burst: 'BURST FIRE',
+    spread: 'SPREAD SHOT',
+    melee: 'MELEE RUSH',
+    bait: 'BAIT',
+    flank: 'FLANK',
+  };
+  const mode = modeLabels[enemyBrain.mode] || String(enemyBrain.mode).toUpperCase();
+  const attack = attackLabels[enemyBrain.attack_pattern] || String(enemyBrain.attack_pattern).toUpperCase();
+  const dodge = enemyBrain.dodge_bias === 'none' ? 'NO DODGE BIAS' : `DODGE ${String(enemyBrain.dodge_bias).toUpperCase()}`;
+  const aggression = Math.round(Math.min(1, (enemyBrain.aggression ?? 0.55) * getDifficulty().enemyAggressionMul) * 100);
+
+  ctx.save();
+  ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(7, 11, 22, 0.78)';
+  roundRect(ctx, W / 2 - 285, arena.y + 10, 570, 72, 10);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(239, 68, 68, 0.75)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.shadowColor = '#ef4444';
+  ctx.shadowBlur = 8;
+  ctx.fillStyle = '#fca5a5';
+  ctx.font = 'bold 25px system-ui, sans-serif';
+  ctx.fillText(`CPU STRATEGY: ${mode} / ${attack}`, W / 2, arena.y + 40);
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#cbd5e1';
+  ctx.font = 'bold 14px system-ui, sans-serif';
+  ctx.fillText(`${dodge}  |  AGGRESSION ${aggression}%`, W / 2, arena.y + 64);
   ctx.restore();
 }
 
